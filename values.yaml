@@ -1,0 +1,16 @@
+# Parent chart values - This matches nubus umbrella's values.yaml
+# The parent does NOT set keyMapping at all for ldap.auth.existingSecret
+
+# Direct values - parent sets name but NOT keyMapping
+existingSecret:
+  name: "my-secret"
+  # keyMapping is NOT set - subchart default {password: null} will be used
+
+# Subchart values - THIS IS THE KEY SCENARIO
+# The parent only sets name, but NOT keyMapping
+# OLD HELM: subchart's null values get deleted -> keyMapping becomes {} or nil
+# NEW HELM: subchart's null values are PRESERVED -> keyMapping stays {password: null}
+subchart:
+  existingSecret:
+    name: "my-secret"
+    # NOTE: keyMapping is NOT set here! The subchart defaults to {password: null}

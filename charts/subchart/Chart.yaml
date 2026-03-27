@@ -1,0 +1,9 @@
+apiVersion: v2
+name: subchart
+description: Subchart with Bitnami common dependency demonstrating nil value handling
+version: 0.1.0
+
+dependencies:
+  - name: common
+    version: 2.x.x
+    repository: https://charts.bitnami.com/bitnami

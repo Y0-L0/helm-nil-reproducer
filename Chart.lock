@@ -1,0 +1,9 @@
+dependencies:
+- name: common
+  repository: https://charts.bitnami.com/bitnami
+  version: 2.37.0
+- name: subchart
+  repository: ""
+  version: 0.1.0
+digest: sha256:58b00c6b4b5b12147d9427d424867458dfed344cae1c25f5538f5d4811790382
+generated: "2026-03-27T22:03:27.402636667+01:00"

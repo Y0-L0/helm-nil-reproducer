@@ -1,0 +1,7 @@
+# Subchart defaults - This matches keycloak-bootstrap's values.yaml
+# The subchart has explicit null values in keyMapping
+
+existingSecret:
+  name: null
+  keyMapping:
+    password: null  # <-- This null is the problem
