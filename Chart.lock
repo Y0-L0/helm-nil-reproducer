@@ -1,7 +1,4 @@
 dependencies:
-- name: common
-  repository: https://charts.bitnami.com/bitnami
-  version: 2.37.0
 - name: subchart
   repository: ""
   version: 0.1.0

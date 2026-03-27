@@ -1,6 +1,8 @@
+> **Disclaimer:** This repo was vibe-coded with Claude.
+
 # Helm Nil SubPath Reproducer
 
-Minimal reproducer demonstrating the nil value handling issue affecting Nubus deployment with Helm 3.20.1+ and 4.1.3+.
+Minimal reproducer demonstrating a nil value handling issue in Helm 3.20.1+ and 4.1.3+.
 
 ## The Problem
 
@@ -20,15 +22,14 @@ This breaks volume mounts that use `subPath`, causing Kubernetes to mount the en
 
 ```
 helm-nil-reproducer/
-├── Chart.yaml                           # Depends on Bitnami common + subchart
+├── Chart.yaml                           # Depends on subchart
 ├── values.yaml                          # Parent values (doesn't set keyMapping)
 ├── templates/
 │   ├── _helpers.tpl                     # Broken vs Fixed helper implementations
 │   └── secret.yaml                      # Demonstrates the issue with all three helpers
 └── charts/
-    ├── common-2.37.0.tgz               # Bitnami common chart
     └── subchart/
-        ├── Chart.yaml                   # Also depends on Bitnami common
+        ├── Chart.yaml                   # Depends on Bitnami common
         ├── values.yaml                  # Subchart defaults with null keyMapping
         ├── charts/
         │   └── common-2.37.0.tgz       # Bitnami common chart
@@ -39,8 +40,6 @@ helm-nil-reproducer/
 ## Reproduction
 
 ```bash
-cd /path/to/ums-stack
-
 # Test with different Helm versions
 ./helm-bin/helm-3.17.0 template ./helm-nil-reproducer | grep password_key
 ./helm-bin/helm-3.20.1 template ./helm-nil-reproducer | grep password_key
@@ -64,9 +63,9 @@ subPath: "password"
 subPath: "%!s(<nil>)"
 ```
 
-## Why Both Helpers Output Different Results
+## Why the Helpers Differ
 
-### Broken Helper (Bitnami pattern)
+### Broken Helper (Bitnami `common.secrets.key`)
 
 ```go-template
 {{- if .existingSecret.keyMapping -}}           # {password: null} is truthy (non-empty map)
@@ -75,7 +74,7 @@ subPath: "%!s(<nil>)"
 {{- printf "%s" $key -}}                         # Outputs %!s(<nil>)
 ```
 
-### Fixed Helper (nubus-common pattern)
+### Fixed Helper
 
 ```go-template
 {{- $customKey := get ( default dict (.existingSecret).keyMapping ) .key -}}
@@ -84,21 +83,4 @@ subPath: "%!s(<nil>)"
 {{- else -}}
 {{- .key -}}                                     # Falls through to default: "password"
 {{- end -}}
-```
-
-## The Fix
-
-The keycloak-bootstrap chart should use `nubus-common.secrets.key` instead of `common.secrets.key` in `templates/job.yaml:120`:
-
-```diff
-- subPath: {{ include "common.secrets.key" (dict "existingSecret" .Values.ldap.auth.existingSecret "key" "password") | quote }}
-+ subPath: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.ldap.auth.existingSecret "key" "password" "context" .) | quote }}
-```
-
-Or modify the subchart defaults to use empty string instead of null:
-
-```diff
-  keyMapping:
--   password: null
-+   password: ""
 ```

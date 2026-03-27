@@ -4,8 +4,5 @@ description: Minimal reproducer for Helm nil value handling in subPath
 version: 0.1.0
 
 dependencies:
-  - name: common
-    version: 2.x.x
-    repository: https://charts.bitnami.com/bitnami
   - name: subchart
     version: 0.1.0
