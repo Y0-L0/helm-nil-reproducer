@@ -4,6 +4,14 @@
 
 Minimal reproducer demonstrating a nil value handling issue in Helm 3.20.1+ and 4.1.3+.
 
+PR [#31644](https://github.com/helm/helm/pull/31644) preserved nil values too aggressively, causing three downstream issues:
+
+1. **Bitnami `common.secrets.key`** outputs `%!s(<nil>)` instead of the secret key name, breaking `subPath` volume mounts.
+2. **`pluck`-based fallbacks** (e.g. GitLab chart) silently return nil instead of falling through to global values, dropping features like cert-manager annotations.
+3. **`--values` null overrides** no longer erase subchart defaults, breaking [documented Helm behavior](https://helm.sh/docs/chart_template_guide/values_files/#deleting-a-default-key).
+
+See [Impact.md](Impact.md) for the full analysis.
+
 ## The Problem
 
 When a Helm subchart has explicit `null` values in its defaults (like `keyMapping: {password: null}`), and the parent chart doesn't override these values, the `index` function returns `nil` instead of failing to find the key. When this `nil` is passed to `printf "%s"`, it outputs `%!s(<nil>)`.
