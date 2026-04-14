@@ -1,0 +1,18 @@
+{{/*
+Parent chart pluck test — tests behavior B from the parent's perspective.
+subchart.ingress.configureCertmanager is null (subchart default),
+global.ingress.configureCertmanager is true (set by parent).
+pluck should fall through the null to the global value.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pluck-test
+data:
+  # Behavior B: pluck falls through subchart nil to global — old helm: "true", new helm: ""
+  pluck_result: {{ pluck "configureCertmanager" .Values.subchart.ingress .Values.global.ingress (dict "configureCertmanager" "default-false") | first | quote }}
+
+  # Debug
+  subchart_ingress: {{ .Values.subchart.ingress | toJson | quote }}
+  global_ingress: {{ .Values.global.ingress | toJson | quote }}
+  subchart_certmanager_type: {{ typeOf (index .Values.subchart.ingress "configureCertmanager") | quote }}

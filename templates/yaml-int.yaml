@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yaml-int-test
+data:
+  yaml_output: |
+{{ .Values.toTomlTest | toYaml | indent 4 }}
+  bar_direct: {{ .Values.toTomlTest.bar | quote }}
+  bar_type: {{ typeOf .Values.toTomlTest.bar | quote }}

@@ -1,0 +1,25 @@
+{{/*
+Reproducer for helm/helm#32035: toToml filter converts integers to floats.
+
+Root cause: yaml.Unmarshal promotes all integers to float64 internally.
+The TOML encoder (BurntSushi/toml) reflects on the Go type and serializes
+float64 as 9.0 instead of 9.
+
+Prior fix: PR #13533 (changed decoder to preserve int types)
+Reverted:  PR #30884 (broke typeIs/typeOf checks that expected float64, e.g. oauth2-proxy)
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: toml-int-reproducer
+data:
+  # BUG: renders integers as floats: bar = 9.0, port = 3000.0, count = 42.0
+  toml_output: |
+{{ .Values.toTomlTest | toToml | indent 4 }}
+
+  # JSON for comparison (no bug there)
+  json_output: {{ .Values.toTomlTest | toJson | quote }}
+
+  # Type that YAML/Helm sees for these integers
+  bar_type: {{ typeOf .Values.toTomlTest.bar | quote }}
+  port_type: {{ typeOf .Values.toTomlTest.port | quote }}

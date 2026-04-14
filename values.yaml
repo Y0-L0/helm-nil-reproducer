@@ -14,3 +14,18 @@ subchart:
   existingSecret:
     name: "my-secret"
     # NOTE: keyMapping is NOT set here! The subchart defaults to {password: null}
+  # NOTE: ingress is NOT set here! The subchart defaults to {configureCertmanager: null}
+  # NOTE: extraConfig is NOT set here! The subchart defaults to {} — override-null.yaml sets it to null for behavior D
+
+# Global values - parent sets this, expects subchart pluck to pick it up
+global:
+  ingress:
+    configureCertmanager: true
+
+# toToml int-to-float reproducer (issue #32035)
+# These should remain integers after toToml, not become 9.0 / 3000.0
+toTomlTest:
+  bar: 9
+  port: 3000
+  nested:
+    count: 42

@@ -5,3 +5,10 @@ existingSecret:
   name: null
   keyMapping:
     password: null  # <-- This null is the problem
+
+ingress:
+  configureCertmanager: null  # <-- Subchart default nil, should fall through to global via pluck
+
+# Behavior D fixture: default is {} (empty map, not null)
+# Parent values.yaml sets this to null — old helm collapses null→{}, new helm preserves null
+extraConfig: {}
