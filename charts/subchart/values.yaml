@@ -1,14 +1,23 @@
 # Subchart defaults - This matches keycloak-bootstrap's values.yaml
-# The subchart has explicit null values in keyMapping
 
-existingSecret:
+# Behavior A fixture: subchart default has null — parent does NOT override this key
+# Tests whether coalescing cleans the null out
+existingSecretA:
   name: null
   keyMapping:
-    password: null  # <-- This null is the problem
+    password: null
 
+# Behavior C fixture: subchart default has null — parent override-null.yaml sets keyMapping: null
+# Tests whether user-supplied null via --values erases the subchart default
+existingSecretC:
+  name: null
+  keyMapping:
+    password: null
+
+# Behavior B fixture: subchart default nil — pluck should fall through to global
 ingress:
-  configureCertmanager: null  # <-- Subchart default nil, should fall through to global via pluck
+  configureCertmanager: null
 
-# Behavior D fixture: default is {} (empty map, not null)
-# Parent values.yaml sets this to null — old helm collapses null→{}, new helm preserves null
+# Behavior D fixture: subchart default is {} (empty map, not null)
+# override-null.yaml sets this to null — old helm collapses null→{}, new helm preserves null
 extraConfig: {}

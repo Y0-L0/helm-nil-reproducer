@@ -3,6 +3,6 @@
 # Behavior C: null should erase the subchart's default keyMapping (pre-existing, broken by #31644)
 # Behavior D: null over a {} default should be preserved, not collapsed to {} (fixed by #31644)
 subchart:
-  existingSecret:
+  existingSecretC:
     keyMapping: null
   extraConfig: null  # default in subchart is {} — old helm: null→{}, new helm: null preserved
